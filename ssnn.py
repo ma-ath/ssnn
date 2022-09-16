@@ -7,7 +7,7 @@ class SSNN(torch.nn.Module):
     y[n]   = Cx[n] + Du[n]
     """
 
-    def __init__(self, u_len:int, x_len:int, y_len:int, x0 = None):
+    def __init__(self, u_len:int, x_len:int, y_len:int):
         """State-space neural network model
 
         Parameters
@@ -27,15 +27,12 @@ class SSNN(torch.nn.Module):
         self.C = torch.nn.parameter.Parameter(torch.Tensor(y_len, x_len), requires_grad=True)
         self.D = torch.nn.parameter.Parameter(torch.Tensor(y_len, u_len), requires_grad=True)
 
-        # state vector
-        self.x = torch.Tensor(x_len)
-
         self.u_len = u_len
         self.x_len = x_len
         self.y_len = y_len
 
         # Initialize this layer
-        self.__init_layer(x0)
+        self.__init_layer()
 
     def forward(self, u, x0 = None):
         batch_size, sequence_size, input_size = u.size()
@@ -44,37 +41,36 @@ class SSNN(torch.nn.Module):
         if input_size != self.u_len:
             raise ValueError("Size of input different than model input size")
 
-        for batch in range(batch_size):
-            for t in range(sequence_size):
-                u_t = u[batch,t,:]
-          
-                self.x = torch.mv(self.A, self.x) + torch.mv(self.B, u_t)
-                y = torch.mv(self.C, self.x) + torch.mv(self.D, u_t)
-                y = torch.tanh(y)
-                y_seq.append(y.unsqueeze(0))
+        # state vector initialization
+        if x0 is None:
+            x = torch.zeros(batch_size, self.x_len).to(u.device)
+            x = x.t() # column vectors
+        else:
+            x = x0.to(u.device)
 
-        y_seq = torch.cat(y_seq, dim=0)
-        y_seq = y_seq.transpose(0, 1).contiguous()
+        for t in range(sequence_size):
+            u_t = u[:,t,:]
+            u_t = u_t.t() # work with column vectors
+       
+            x = torch.matmul(self.A, x) + torch.matmul(self.B, u_t)
+            y = torch.matmul(self.C, x) + torch.matmul(self.D, u_t)
+            y = torch.tanh(y)
+            y_seq.append(y.unsqueeze(0))
+
+        y_seq = torch.cat(y_seq, dim=0) #(seq, feat, batch)
+        y_seq = y_seq.permute(2, 0, 1)  #(batch, seq, feat)
 
         return y_seq
 
-    def __init_layer(self, x0):
+    def __init_layer(self):
         stdv = 1.0 / math.sqrt(self.x_len)
         for matrix in self.parameters():
             matrix.data.uniform_(-stdv, stdv)
-        
-        if x0 is None:
-            self.x = torch.zeros(self.x_len).to(self.x.device)
-        else:
-            self.x = x0
 
 
 if __name__ == '__main__':
-    model = SSNN(3, 3, 3)
+    model = SSNN(3, 2, 3)
 
-    u = torch.ones(4,4,3)
+    u = torch.ones(5,4,3)
 
     y = model(u)
-
-    print(u)
-    print(y.shape)
