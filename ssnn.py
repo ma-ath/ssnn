@@ -54,7 +54,7 @@ class SSNN(torch.nn.Module):
        
             x = torch.matmul(self.A, x) + torch.matmul(self.B, u_t)
             y = torch.matmul(self.C, x) + torch.matmul(self.D, u_t)
-            y = torch.tanh(y)
+            #y = torch.tanh(y)
             y_seq.append(y.unsqueeze(0))
 
         y_seq = torch.cat(y_seq, dim=0) #(seq, feat, batch)
@@ -68,9 +68,36 @@ class SSNN(torch.nn.Module):
             matrix.data.uniform_(-stdv, stdv)
 
 
-if __name__ == '__main__':
-    model = SSNN(3, 2, 3)
+if __name__ == '__main__':       
+    import numpy as np
+    import matplotlib.pyplot as plt
 
-    u = torch.ones(5,4,3)
+    X_train = np.arange(0,100,0.5) 
+    y_train = np.sin(X_train)
+    X_test = np.arange(100,200,0.5) 
+    y_test = np.sin(X_test)
 
-    y = model(u)
+    train_series = torch.from_numpy(y_train.reshape((len(y_train), 1)).reshape((10,20,1))).float()
+    test_series  = torch.from_numpy(y_test.reshape((len(y_test), 1)).reshape((10,20,1))).float()
+
+    model = SSNN(1, 2, 1)
+
+    criterion = torch.nn.MSELoss()
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    
+    for epoch in range(100):  # loop over the dataset multiple times
+        #print(epoch)
+        # zero the parameter gradients
+        optimizer.zero_grad()
+
+        # forward + backward + optimize
+        outputs = model(train_series)
+        loss = criterion(outputs, train_series)
+        #print("loss:", loss.item())
+        loss.backward()
+        optimizer.step()
+
+        with torch.no_grad():
+            outputs = model(test_series)
+            loss = criterion(outputs, test_series)
+            #print("eval:", loss.item())
