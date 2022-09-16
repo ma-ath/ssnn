@@ -30,10 +30,7 @@ class SSNN(torch.nn.Module):
         self.u_len = u_len
         self.x_len = x_len
         self.y_len = y_len
-
-        # Initialize this layer
-        self.__init_layer()
-
+        
     def forward(self, u, x0 = None):
         batch_size, sequence_size, input_size = u.size()
         y_seq = []
@@ -97,7 +94,11 @@ if __name__ == '__main__':
         loss.backward()
         optimizer.step()
 
-        with torch.no_grad():
-            outputs = model(test_series)
-            loss = criterion(outputs, test_series)
-            #print("eval:", loss.item())
+    with torch.no_grad():
+        outputs = model(train_series)
+        loss = criterion(outputs, train_series)
+        print("loss:", loss.item())
+
+        outputs = model(test_series)
+        loss = criterion(outputs, test_series)
+        print("eval:", loss.item())
