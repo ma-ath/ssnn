@@ -15,11 +15,15 @@ where $u[n]$ is the system input, $y[n]$ is its output, $x[n]$ is its internal s
 
 In this experiment, we implement and optimize this cell using a stochastic gradient descent algorithm, in order to replicate a given input sequence. The main objectives are:
 
-- To understand if the optimization converges
+- To understand if and how the optimization converges
 - To understand how sensible is the cell to state initialization
 - To understand how the state variable size influences optimization
 - To analize the system matrices, and
 - To compare it to an LSTM cell.
+
+## [Experiment 1 - Convergence](./experiment1.ipynb)
+
+
 
 ## Findings
 

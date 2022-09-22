@@ -7,7 +7,7 @@ class SSNN(torch.nn.Module):
     y[n]   = Cx[n] + Du[n]
     """
 
-    def __init__(self, u_len:int, x_len:int, y_len:int):
+    def __init__(self, u_len:int, x_len:int, y_len:int, **kwargs):
         """State-space neural network model
 
         Parameters
