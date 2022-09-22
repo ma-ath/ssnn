@@ -23,6 +23,11 @@ In this experiment, we implement and optimize this cell using a stochastic gradi
 
 ## [Experiment 1 - Convergence](./experiment1.ipynb)
 
+We realize the model with 10 state variables ($x \in \real^{10}$), and train it using SGD without momentum, in minibatchs of 32. We test different inputs 
+- Pure sine $y[n] = \sin{n}$
+- 3 sine harmonics
+
+- 
 
 
 ## Findings
