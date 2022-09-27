@@ -24,12 +24,14 @@ In this experiment, we implement and optimize this cell using a stochastic gradi
 ## [Experiment 1 - Convergence](./experiment1.ipynb)
 
 We realize the model with 10 state variables ($x \in \real^{10}$), and train it using SGD without momentum, in minibatchs of 32. We test different inputs 
-- Pure sine $y[n] = \sin{n}$
-- 3 sine harmonics
-
-- 
+- Pure sine $y[n] = A\sin{\omega n}$
+- 3 sine harmonics $y[n] = A_1\sin{\omega_1 n} + A_2\sin{\omega_2 n} + A_3\sin{\omega_3 n}$
 
 
 ## Findings
+
+### Experiment 1
+
+The network does encounter convergence difficults, even for relativitly simple signals. 
 
 ## Discussion
